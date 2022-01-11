@@ -1,0 +1,7 @@
+divide_lgm.py        three models for 'Kaggle Mug','Kaggle Sticker' and 'Kaggle Hat', related data: hat.csv, hat_test.csv ; mug.csv, mug_test.csv; sticker.csv,sticker_test.csv.
+
+tab 2022 Jan data process.py    preprocess and feature engineering
+
+tab 2022 Jan xgboost.py   xgboost model for 'modified_train.csv' and'modified_test.csv'.
+
+tab 2022 Jan lgbm.py     lightgbm model for 'modified_train.csv' and'modified_test.csv'.
