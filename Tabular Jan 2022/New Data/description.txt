@@ -1,0 +1,17 @@
+Training data:
+
+modified_train.csv processed dataset that can be directly put into training.
+
+hat.csv sale conditon regarding to 'Kaggle hat'
+mug.csv sale condition regarding to 'Kaggle Mug'
+sticker.csv sale condition regarding to 'Kaggle Sticker'
+
+Test data:
+
+modified_train.csv processed dataset that can be directly put into prediction.
+
+hat_test.csv sale conditon regarding to 'Kaggle hat'
+mug_test.csv sale condition regarding to 'Kaggle Mug'
+sticker_test.csv sale condition regarding to 'Kaggle Sticker'
+
+
