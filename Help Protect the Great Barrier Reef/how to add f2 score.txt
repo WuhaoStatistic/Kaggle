@@ -1,0 +1,83 @@
+f1 改 f2
+
+metrics.py中
+
+def fitness(x):
+    # Model fitness as a weighted combination of metrics
+    w = [0, 0, 0.05, 95]  # weights for [P, R, mAP@0.5, mAP@0.5:0.95]
+    return (x[:, :4] * w).sum(1)
+改为
+def fitness(x):
+    # Model fitness as a weighted combination of metrics
+    w = [0, 0, 0, 0, 1]  # weights for [P, R, mAP@0.5, mAP@0.5:0.95]
+    return (x[:, :5] * w).sum(1)
+
+
+ap_per_class中
+将77行附近的f1定于改为f2
+即将
+# Compute F1 (harmonic mean of precision and recall)
+    f1 = 2 * p * r / (p + r + ers)
+
+# Compute F1 (harmonic mean of precision and recall)
+    f2 = 5 * p * r / (4*p + r + 1e-16)
+
+之后将该函数内所有后续f1都改为f2 防止歧义
+
+
+
+val.py中，第160行
+iouv = torch.linspace(0.5, 0.95, 10).to(device)
+改为
+iouv = torch.from_numpy(np.arange(0.3, 0.85, 0.05)).to(device)  # iou vector for mAP@0.5:0.95
+
+176行中f1改为f2
+即
+dt, p, r, f1, mp, mr, map50, map = [0.0, 0.0, 0.0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+改为
+dt, p, r, f2, mp, mr, map50, map = [0.0, 0.0, 0.0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+
+
+
+254行 f1改为 f2 可以看到这里调用了之前metric中的ap_per_class函数
+tp, fp, p, r, f1, ap, ap_class = ap_per_class(*stats, plot=plots, save_dir=save_dir, names=names)
+改为
+tp, fp, p, r, f2, ap, ap_class = ap_per_class(*stats, plot=plots, save_dir=save_dir, names=names)
+
+
+同时将接下来的两行
+p50, ap = ap[:, 0], ap.mean(1)  # AP@0.5, AP@0.5:0.95
+mp, mr, map50, map = p.mean(), r.mean(), ap50.mean(), ap.mean()
+改为
+ap50, ap, f2 = ap[:, 0], ap.mean(1), f2.mean(0)  # AP@0.5, AP@0.5:0.95
+mp, mr, f2, map50, map = p.mean(), r.mean(), f2.mean(), ap50.mean(), ap.mean()
+
+
+将该函数的return（315行附近）由
+return (mp, mr, map50, map, *(loss.cpu() / len(dataloader)).tolist()), maps, t
+改为
+return (mp, mr, map50, map, f2, *(loss.cpu() / len(dataloader)).tolist()), maps, t
+
+在 yolov5/utils/logger/_init_.py中
+
+在第46行self.keys中第二行添加f2描述
+'metrics/precision', 'metrics/recall', 'metrics/mAP_0.5', 'metrics/mAP_0.5:0.95',
+添加之后为
+'metrics/precision', 'metrics/recall', 'metrics/mAP_0.5', 'metrics/mAP_0.5:0.95',"metrics/F2" ,
+
+在紧接着后续的self_best_keys中添加best/f2
+self.best_keys = ['best/epoch', 'best/precision', 'best/recall', 'best/mAP_0.5', 'best/mAP_0.5:0.95',]
+self.best_keys = ['best/epoch', 'best/precision', 'best/recall', 'best/mAP_0.5', 'best/mAP_0.5:0.95',"best/F2",]
+
+55行 
+self.csv = True改为
+self.csv = False
+
+132行
+best_results = [epoch] + vals[3:7]
+改为
+best_results = [epoch] + vals[3:8]
+
+
+
+
